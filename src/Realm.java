@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Random;
 
 public class Realm {
     //Класс для чтения введенных строк из консоли
@@ -9,6 +10,17 @@ public class Realm {
     private static FantasyCharacter player = null;
     //Класс для битвы можно не создавать каждый раз, а переиспользовать
     private static BattleScene battleScene = null;
+    private static FightCallback fightCallback;
+
+    public class FightCallback {
+        public static void fightLost() {
+            System.out.printf("%s проиграл!%n", Realm.player.getName());
+        }
+
+        public static void fightWin() {
+            System.out.printf("%s победил!%n", Realm.player.getName());
+        }
+    }
 
     public static void main(String[] args) {
         //Инициализируем BufferedReader
@@ -25,46 +37,73 @@ public class Realm {
         }
     }
 
-        private static void command (String string) throws IOException {
-            //Если это первый запуск, то мы должны создать игрока, именем будет служить первая введенная строка из консоли
-            if (player == null) {
-                player = new Hero(
-                        string,
-                        100,
-                        20,
-                        20,
-                        0,
-                        0
-                );
-                System.out.println(String.format("Спасти наш мир от драконов вызвался %s! Да будет его броня крепка и бицепс кругл!", player.getName()));
-                //Метод для вывода меню
-                printNavigation();
-            }
-            //Варианты для команд
-            switch (string) {
-                case "1": {
-                    System.out.println("Торговец еще не приехал");
-                    command(br.readLine());
-                }
-                break;
-                case "2": {
-                    commitFight();
-                }
-                break;
-                case "3":
-                    System.exit(1);
-                    break;
-                case "да":
-                    command("2");
-                    break;
-                case "нет": {
-                    printNavigation();
-                    command(br.readLine());
-                }
-            }
-            //Снова ждем команды от пользователя
-            command(br.readLine());
+    private static void command(String string) throws IOException {
+        //Если это первый запуск, то мы должны создать игрока, именем будет служить первая введенная строка из консоли
+        if (player == null) {
+            player = new Hero(
+                    string,
+                    100,
+                    20,
+                    20,
+                    0,
+                    0
+            );
+            System.out.printf("Спасти наш мир от драконов вызвался %s! Да будет его броня крепка и бицепс кругл!%n", player.getName());
+            //Метод для вывода меню
+            printNavigation();
         }
+        //Варианты для команд
+        switch (string) {
+            case "1": {
+                System.out.println("Торговец еще не приехал");
+                command(br.readLine());
+            }
+            break;
+            case "2": {
+                commitFight();
+            }
+            break;
+            case "3":
+                System.exit(1);
+                break;
+            case "да":
+                command("2");
+                break;
+            case "нет": {
+                printNavigation();
+                command(br.readLine());
+            }
+        }
+        //Снова ждем команды от пользователя
+        command(br.readLine());
     }
 
 
+    private static void commitFight() {
+        System.out.println("Я зашел в темный лес");
+        Random random = new Random();
+        FantasyCharacter monster;
+        if (random.nextInt(100) > 50) {
+            monster = new Goblin("Я гоблин",
+                    100,
+                    5,
+                    5,
+                    10,
+                    50);
+        } else {
+            monster = new Skeleton("Я скелет",
+                    100,
+                    5,
+                    5,
+                    10,
+                    50);
+        }
+        battleScene.fight(player, monster, fightCallback);
+    }
+
+    private static void printNavigation() {
+        System.out.println("1. К торговцу");
+        System.out.println("2. В темный лес");
+        System.out.println("3. Назад");
+    }
+}
