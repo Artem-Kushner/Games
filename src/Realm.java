@@ -12,7 +12,7 @@ public class Realm {
     private static BattleScene battleScene = null;
     private static FightCallback fightCallback;
 
-    public class FightCallback {
+    /*public class FightCallback {
         public static void fightLost() {
             System.out.printf("%s проиграл!%n", Realm.player.getName());
         }
@@ -21,7 +21,7 @@ public class Realm {
             System.out.printf("%s победил!%n", Realm.player.getName());
         }
     }
-
+*/
     public static void main(String[] args) {
         //Инициализируем BufferedReader
         br = new BufferedReader(new InputStreamReader(System.in));
@@ -77,9 +77,63 @@ public class Realm {
         //Снова ждем команды от пользователя
         command(br.readLine());
     }
-
-
     private static void commitFight() {
+        battleScene.fight(player, createMonster(), new FightCallback() {
+            @Override
+            public void fightWin() {
+                System.out.println(String.format("%s победил! Теперь у вас %d опыта и %d золота, а также осталось %d едениц здоровья.", player.getName(), player.getXp(), player.getGold(), player.getHealthPoints()));
+                System.out.println("Желаете продолжить поход или вернуться в город? (да/нет)");
+                try {
+                    command(br.readLine());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void fightLost() {
+
+            }
+        });
+    }
+
+    private static void printNavigation() {
+        System.out.println("Куда вы хотите пойти?");
+        System.out.println("1. К Торговцу");
+        System.out.println("2. В темный лес");
+        System.out.println("3. Выход");
+    }
+
+    private static FantasyCharacter createMonster() {
+        //Рандомайзер
+        int random = (int) (Math.random() * 10);
+        //С вероятностью 50% создается или скелет  или гоблин
+        if (random % 2 == 0) return new Goblin(
+                "Гоблин",
+                50,
+                10,
+                10,
+                100,
+                20
+        );
+        else return new Skeleton(
+                "Скелет",
+                25,
+                20,
+                20,
+                100,
+                10
+        );
+    }
+
+   public interface FightCallback {
+        void fightWin();
+        void fightLost();
+    }
+}
+
+    /*private static void commitFight() {
+
         System.out.println("Я зашел в темный лес");
         Random random = new Random();
         FantasyCharacter monster;
@@ -107,3 +161,4 @@ public class Realm {
         System.out.println("3. Назад");
     }
 }
+*/
